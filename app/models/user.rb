@@ -5,4 +5,8 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :experiences
+  has_many :educations
+  has_many :skills
+  has_many :realisations
+
 end
