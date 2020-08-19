@@ -16,6 +16,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass'
 gem 'simple_form'
+gem 'activeadmin'
 
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
