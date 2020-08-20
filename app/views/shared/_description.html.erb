@@ -1,0 +1,18 @@
+<section class="resume-section" id="about">
+    <div class="resume-section-content">
+      <h1 class="mb-0">
+        <%= @user.first_name %>
+        <span class="text-primary"><%= @user.last_name %></span>
+      </h1>
+      <div class="subheading mb-5">
+        <%= @user.address %> · <%= @user.phone %> ·
+        <%= mail_to @user.mail %>
+      </div>
+      <p class="lead mb-5 text-justify"><%= @user.description %></p>
+      <div class="social-icons">
+        <a class="social-icon" href="https://www.linkedin.com/in/mathieu-leblond/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+        <a class="social-icon" href="https://github.com/MathLebl/" target="_blank"><i class="fab fa-github"></i></a>
+        <a class="social-icon" href="https://www.instagram.com/ma_le_cv/" target="_blank"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </section>
