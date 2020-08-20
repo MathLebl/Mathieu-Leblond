@@ -1,19 +1,21 @@
 <section class="resume-section" id="experience">
   <div class="resume-section-content">
     <h2 class="mb-5">Experiences</h2>
-    <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
-      <div class="flex-grow-1">
-        <h3 class="mb-0">Développeur Full Stack et Management de Projet</h3>
-        <div class="subheading mb-3">Freelance</div>
-        <p class="text-justify">Poursuite du projet <strong>Polipédia</strong> <br>
-         -> Project manager et développeur Full Stack<br>
-         <br>
-         Création du site de <strong>Contrepied Productions</strong>, maison de production<br>
-         -> Création, Développeur Full Stack, Project Management avec le concours de <strong>La Locomotive</strong><br><br>
-         Projet de création de <strong>La Locomotive</strong>,  un collectif de Freelancer issus de la formation du Wagon Lyon<br>
-         -> Project Manager et Développeur Full Stack</p>
-     </div>
-     <div class="flex-shrink-0"><span class="text-primary">Mars 2020 - Aujourd'hui</span></div>
-   </div>
+    <% @experiences.each do |experience| %>
+      <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
+        <div class="flex-grow-1">
+          <h3 class="mb-0"><%= experience.role %></h3>
+          <div class="subheading mb-3"><%= experience.entreprise %></div>
+          <p class="text-justify"><%= experience.xp_description.text %><br>
+            <%= experience.xp_description.item %><br>
+            <br>
+            Création du site de <strong>Contrepied Productions</strong>, maison de production<br>
+            -> Création, Développeur Full Stack, Project Management avec le concours de <strong>La Locomotive</strong><br><br>
+            Projet de création de <strong>La Locomotive</strong>,  un collectif de Freelancer issus de la formation du Wagon Lyon<br>
+            -> Project Manager et Développeur Full Stack</p>
+          </div>
+        <div class="flex-shrink-0"><span class="text-primary"><%= experience.start %> - <%= experience.end %></span></div>
+      </div>
+   <% end %>
   </div>
 </section>
