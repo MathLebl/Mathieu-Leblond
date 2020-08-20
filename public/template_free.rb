@@ -71,7 +71,8 @@ run 'mkdir app/services'
 ########################################
 run 'rm -rf app/assets/stylesheets'
 run 'rm -rf vendor'
-run 'cp -R /Users/mathieuleblond/Desktop/rails-stylesheets-perso app/assets/stylesheets'
+run 'curl -L http://www.mathieu-leblond.xyz/template_folder > stylesheets.zip'
+run 'unzip stylesheets.zip -d app/assets && rm stylesheets.zip && mv app/assets/rails-stylesheets-perso app/assets/stylesheets'
 if bootstrap_validate == true
   run 'touch app/assets/stylesheets/config/_bootstrap_variables.scss'
   prepend_file 'app/assets/stylesheets/application.scss', <<~RUBY
