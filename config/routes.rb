@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :users, only: [:show ] do
+  end
+
   ActiveAdmin.routes(self)
   devise_for :users
   root to: 'pages#home'
