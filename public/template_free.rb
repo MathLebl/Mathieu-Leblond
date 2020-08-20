@@ -1,26 +1,25 @@
+# init variables
+###########################################
 devise_validate = false
-pp devise_validate
-activeadmin_validate = false
-pp activeadmin_validate
+# activeadmin_validate = false
 tailwind_validate = false
-pp tailwind_validate
 bootstrap_validate = false
-pp bootstrap_validate
+repo_validate = false
 
+# Setings Questions
+###########################################
+pp "Select your set up"
 devise_validate = true if yes?('Devise ?')
-if devise_validate == true
-  activeadmin_validate = true if yes?('Active Admin ?')
-end
-
+# if devise_validate == true
+#   activeadmin_validate = true if yes?('Active Admin ?')
+# end
 if yes?('Tailwind ?')
   tailwind_validate = true
 elsif yes?('Bootstrap ?')
   bootstrap_validate = true
 end
-pp devise_validate
-pp activeadmin_validate
-pp tailwind_validate
-pp bootstrap_validate
+
+repo_validate = true if yes?("Create Github repo?")
 
 # GEMFILE
 ########################################
@@ -188,11 +187,6 @@ end
   if bootstrap_validate == true
   append_file 'app/javascript/packs/application.js', <<~JS
 
-    // ----------------------------------------------------
-    // Note(lewagon): ABOVE IS RAILS DEFAULT CONFIGURATION
-    // WRITE YOUR OWN JS STARTING FROM HERE 👇
-    // ----------------------------------------------------
-
     // External imports
     import "bootstrap";
 
@@ -268,12 +262,13 @@ JS
   ########################################
   run 'touch .env'
 
+  # Fix puma config
+  gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
   # Git
   ########################################
   git add: '.'
-  git commit: "-m 'Initial commit with devise template from https://github.com/lewagon/rails-templates'"
-  run 'hub create && git -u push origin master' if yes?("Create Github repo?")
-  # Fix puma config
-  gsub_file('config/puma.rb', 'pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }', '# pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }')
+  git commit: "-m 'Initial commit with modulable template from www.mathieu-leblond.xyz/templates'"
+  run 'hub create && git -u push origin master' if repo_validate == true
+  pp "You just create a new Rails app with #{'devise' if devise_validate == true} #{'tailwind' if tailwind_validate == true} #{'bootstrap' if bootstrap_validate == true} #{'GitHub repo' if repo_validate == true}"
 end
 
