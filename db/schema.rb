@@ -10,10 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_19_211659) do
+ActiveRecord::Schema.define(version: 2020_08_20_203145) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "active_admin_comments", force: :cascade do |t|
+    t.string "namespace"
+    t.text "body"
+    t.string "resource_type"
+    t.bigint "resource_id"
+    t.string "author_type"
+    t.bigint "author_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id"
+    t.index ["namespace"], name: "index_active_admin_comments_on_namespace"
+    t.index ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id"
+  end
 
   create_table "educations", force: :cascade do |t|
     t.string "institution"
@@ -81,7 +95,6 @@ ActiveRecord::Schema.define(version: 2020_08_19_211659) do
   end
 
   create_table "xp_descriptions", force: :cascade do |t|
-    t.string "item"
     t.text "text"
     t.bigint "experience_id", null: false
     t.datetime "created_at", precision: 6, null: false
@@ -89,9 +102,18 @@ ActiveRecord::Schema.define(version: 2020_08_19_211659) do
     t.index ["experience_id"], name: "index_xp_descriptions_on_experience_id"
   end
 
+  create_table "xp_items", force: :cascade do |t|
+    t.string "item"
+    t.bigint "xp_description_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["xp_description_id"], name: "index_xp_items_on_xp_description_id"
+  end
+
   add_foreign_key "educations", "users"
   add_foreign_key "experiences", "users"
   add_foreign_key "realisations", "users"
   add_foreign_key "skills", "users"
   add_foreign_key "xp_descriptions", "experiences"
+  add_foreign_key "xp_items", "xp_descriptions"
 end
