@@ -2,24 +2,24 @@ ActiveAdmin.register Experience do
   ActiveAdmin.register XpDescription do
     belongs_to :experience
   end
-  ActiveAdmin.register XpItem do
-    belongs_to :experience
-  end
+    ActiveAdmin.register XpItem do
+      belongs_to :xp_description
+    end
   permit_params :entreprise, :start, :end, :role, :user_id,
-                xp_description_attributes: [:id, :text, :_destroy],
-                xp_item_attributes: %i[id item _destroy]
+                xp_descriptions_attributes: [:id, :text, :_destroy],
+                xp_items_attributes: [:id, :item, :arrow, :_destroy]
 
   form do |f|
     f.inputs do
-      f.input :user_id, :label => 'User', :as => :select, :collection => User.all.map{|u| ["#{u.first_name}", u.id]}
+      f.input :user_id, label: 'User', as: :select, collection: User.all.map { |u| ["#{u.first_name}", u.id] }
       f.input :role
       f.input :entreprise
       f.inputs do
-        f.has_many :xp_description, allow_destroy: true do |t|
+        f.has_many :xp_descriptions, allow_destroy: true do |t|
           t.input :text
-        end
-        f.has_many :xp_item, allow_destroy: true do |t|
-          t.input :item
+          t.has_many :xp_items, allow_destroy: true do |d|
+            d.input :arrow
+          end
         end
       end
       f.input :start

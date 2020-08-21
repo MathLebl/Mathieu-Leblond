@@ -1,3 +1,3 @@
 class XpItem < ApplicationRecord
-  belongs_to :xp_description
+  belongs_to :experience
 end
