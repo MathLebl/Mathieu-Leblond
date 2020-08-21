@@ -6,8 +6,12 @@
         <div class="flex-grow-1">
           <h3 class="mb-0"><%= experience.role %></h3>
           <div class="subheading mb-3"><%= experience.entreprise %></div>
-          <% @xp_descriptions.each do |description| %>
+          <% experience.xp_descriptions.each do |description| %>
             <p class="text-justify"><%= description.text %></p>
+            <% description.xp_items.each do |item| %>
+            <p class="text-justify"><%= item.arrow %></p>
+
+          <% end %>
 
           <% end %>
           </div>
