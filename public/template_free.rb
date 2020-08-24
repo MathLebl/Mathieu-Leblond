@@ -1,7 +1,8 @@
 # init variables
 ###########################################
 devise_validate = false
-# activeadmin_validate = false
+activeadmin_validate = false
+trestle_validate = false
 tailwind_validate = false
 bootstrap_validate = false
 repo_validate = false
@@ -10,9 +11,13 @@ repo_validate = false
 ###########################################
 pp "Select your set up"
 devise_validate = true if yes?('Devise ?')
-# if devise_validate == true
-#   activeadmin_validate = true if yes?('Active Admin ?')
-# end
+if devise_validate == true
+  if yes?('Active Admin ?')
+    activeadmin_validate = true
+  elsif yes?('Trestle ?')
+    trestle_validate = true
+  end
+end
 if yes?('Tailwind ?')
   tailwind_validate = true
 elsif yes?('Bootstrap ?')
@@ -30,6 +35,22 @@ if devise_validate == true
     gem 'devise'
 
     RUBY
+  end
+  if activeadmin_validate == true
+    inject_into_file 'Gemfile', before: 'group :development, :test do' do
+    <<~RUBY
+    gem 'activeadmin'
+
+    RUBY
+    end
+  elsif trestle_validate == true
+    inject_into_file 'Gemfile', before: 'group :development, :test do' do
+    <<~RUBY
+    gem 'trestle'
+    gem 'trestle-auth'
+
+    RUBY
+    end
   end
 end
 
@@ -99,6 +120,19 @@ inject_into_file 'db/seeds.rb' do
   RUBY
 end
 
+if devise_validate == true
+inject_into_file 'db/seeds/user_seed.rb' do
+  <<-RUBY
+  # User.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
+user = User.new( email: 'admin@example.com', password: 'password', password_confirmation: 'password')
+user.save!
+
+puts 'User create'
+
+  RUBY
+end
+end
+
 # Dev environment
 ########################################
 gsub_file('config/environments/development.rb', /config\.assets\.debug.*/, 'config.assets.debug = false')
@@ -142,8 +176,12 @@ after_bundle do
   if devise_validate == true
   # Devise install + user
   # ########################################
-  generate('devise:install')
-  generate('devise', 'User')
+    generate('devise:install')
+    generate('devise', 'User') if activeadmin_validate == false
+    generate('active_admin:install', 'User') if activeadmin_validate == true
+    generate('trestle:install') if trestle_validate == true
+    generate('trestle:resource', 'User') if trestle_validate == true
+    generate('trestle:auth:install', 'User', '--devise') if trestle_validate == true
 
   # # App controller
   # ########################################
@@ -170,6 +208,13 @@ after_bundle do
     end
   end
   RUBY
+  if activeadmin_validate == true
+    gsub_file 'db/seeds.rb', "User.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?", ' '
+    gsub_file 'config/initializers/active_admin.rb',
+              '# config.site_title_link = "/"',
+              'config.site_title_link = "/"'
+  end
+    rails_command 'db:seed'
 
 end
   # Environments
@@ -269,6 +314,6 @@ JS
   git add: '.'
   git commit: "-m 'Initial commit with modulable template from www.mathieu-leblond.xyz/templates'"
   run 'hub create && git -u push origin master' if repo_validate == true
-  pp "You just create a new Rails app with #{'devise' if devise_validate == true} #{'tailwind' if tailwind_validate == true} #{'bootstrap' if bootstrap_validate == true} #{'GitHub repo' if repo_validate == true}"
+  pp "You just create a new Rails app with #{'devise' if devise_validate == true} #{'activeadmin' if activeadmin_validate == true} #{'trestle' if trestle_validate == true} #{'tailwind' if tailwind_validate == true} #{'bootstrap' if bootstrap_validate == true} #{'GitHub repo' if repo_validate == true}"
 end
 
