@@ -314,6 +314,6 @@ JS
   git add: '.'
   git commit: "-m 'Initial commit with modulable template from www.mathieu-leblond.xyz/templates'"
   run 'hub create && git -u push origin master' if repo_validate == true
-  pp "You just create a new Rails app with #{'devise' if devise_validate == true} #{'activeadmin' if activeadmin_validate == true} #{'trestle' if trestle_validate == true} #{'tailwind' if tailwind_validate == true} #{'bootstrap' if bootstrap_validate == true} #{'GitHub repo' if repo_validate == true}"
+  pp "You just create a new Rails app, #{app_name}, with #{'devise' if devise_validate == true} #{'activeadmin' if activeadmin_validate == true} #{'trestle' if trestle_validate == true} #{'tailwind' if tailwind_validate == true} #{'bootstrap' if bootstrap_validate == true} #{'GitHub repo' if repo_validate == true}"
 end
 
