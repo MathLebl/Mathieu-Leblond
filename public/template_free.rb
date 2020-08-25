@@ -1,30 +1,68 @@
 # init variables
 ###########################################
+variables = []
 devise_validate = false
+pundit_validate = false
 activeadmin_validate = false
 trestle_validate = false
 tailwind_validate = false
 bootstrap_validate = false
+faker_validate = false
 repo_validate = false
+push_validate = false
 
 # Setings Questions
 ###########################################
 pp "Select your set up"
-devise_validate = true if yes?('Devise ?')
-if devise_validate == true
-  if yes?('Active Admin ?')
-    activeadmin_validate = true
-  elsif yes?('Trestle ?')
-    trestle_validate = true
-  end
-end
-if yes?('Tailwind ?')
+pp 'Front Options'
+if yes?('Do you want to use Tailwind ?')
   tailwind_validate = true
-elsif yes?('Bootstrap ?')
+  variables << tailwind_validate
+elsif yes?('Do you want to use Bootstrap ?')
   bootstrap_validate = true
+  variables << tailwind_validate
 end
 
+pp 'Authentication, Authorization and Back office options'
+if yes?('Do you need some ?')
+  devise_validate = true if yes?('Devise ?')
+  if devise_validate == true
+    variables << devise_validate
+    if yes?('Pundit ?')
+      pundit_validate = true
+      variables << pundit_validate
+    end
+    if yes?('Do you want a back office ?')
+      if yes?('Active Admin ?')
+        activeadmin_validate = true
+        variables << activeadmin_validate
+      elsif yes?('Trestle ?')
+        trestle_validate = true
+        variables << trestle_validate
+      end
+    end
+  end
+end
+
+pp 'Seeds Options'
+if yes?('Do you need Faker ?')
+  faker_validate = true
+  variables << faker_validate
+end
+
+pp "Github repo and Heroku's options"
 repo_validate = true if yes?("Create Github repo?")
+if repo_validate == true
+  variables << trestle_validate
+  if yes?("Do you want to push to GitHub?")
+    push_validate = true
+    variables << push_validate
+  end
+  # if yes?('Create Heroku App')
+  #   heroku_app_validate = true
+  #   variables << heroku_app_validate
+  # end
+end
 
 # GEMFILE
 ########################################
@@ -35,6 +73,14 @@ if devise_validate == true
     gem 'devise'
 
     RUBY
+  end
+  if pundit_validate == true
+    inject_into_file 'Gemfile', before: 'group :development, :test do' do
+      <<~RUBY
+      gem 'pundit'
+
+      RUBY
+    end
   end
   if activeadmin_validate == true
     inject_into_file 'Gemfile', before: 'group :development, :test do' do
@@ -68,9 +114,15 @@ if bootstrap_validate == true
 
     RUBY
   end
-else
 end
+if faker_validate == true
+  inject_into_file 'Gemfile', before: 'group :development, :test do' do
+    <<~RUBY
+    gem 'faker'
 
+    RUBY
+  end
+end
 
 inject_into_file 'Gemfile', before: 'group :development do' do
   <<-RUBY
@@ -105,9 +157,14 @@ end
 # Seeds
 ########################################
 run 'mkdir db/seeds'
-run 'cp db/seeds.rb db/seeds/_seed.rb'
+if devise_validate == true
+  run 'touch db/seeds/user_seed.rb'
+else
+  run 'touch db/seeds/example_seed.rb'
+end
 run 'rm db/seeds.rb'
 run 'touch db/seeds.rb'
+
 inject_into_file 'db/seeds.rb' do
   <<-RUBY
   puts 'Creating all the Seeds'
@@ -117,20 +174,49 @@ inject_into_file 'db/seeds.rb' do
   end
 
   puts 'Finished!'
+
+# run the seed files in db/seeds. Look at it
+  RUBY
+end
+
+if faker_validate == true
+  prepend_file 'db/seeds.rb', <<-RUBY
+require 'faker'
   RUBY
 end
 
 if devise_validate == true
-inject_into_file 'db/seeds/user_seed.rb' do
-  <<-RUBY
-  # User.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
-user = User.new( email: 'admin@example.com', password: 'password', password_confirmation: 'password')
-user.save!
+  inject_into_file 'db/seeds/user_seed.rb' do
+    <<-RUBY
+    puts 'Creating User ...'
+    user = User.new(
+      email: 'admin@example.com',
+      password: 'password',
+      password_confirmation: 'password'
+    )
+    user.save!
 
-puts 'User create'
+    puts 'User created'
+# Use the same technic for your seeds. Create a file in db/seeds and put your lines into.
+    RUBY
+  end
+else
+  inject_into_file 'db/seeds/example_seed.rb' do
+    <<-RUBY
+# Use the same technic for your seeds. Create a file in db/seeds and put your lines into.
 
-  RUBY
-end
+  # puts 'Creating Example ...'
+  # example = Example.new(
+  #   param1: 'something',
+  #   param2: 'somthing',
+  #   param3_boolean: true
+  # )
+  # example.save!
+
+  # puts 'Example seed created'
+
+    RUBY
+  end
 end
 
 # Dev environment
@@ -178,6 +264,7 @@ after_bundle do
   # ########################################
     generate('devise:install')
     generate('devise', 'User') if activeadmin_validate == false
+    generate('pundit:install') if pundit_validate == true
     generate('active_admin:install', 'User') if activeadmin_validate == true
     generate('trestle:install') if trestle_validate == true
     generate('trestle:resource', 'User') if trestle_validate == true
@@ -191,6 +278,15 @@ after_bundle do
     #{  "protect_from_forgery with: :exception\n" if Rails.version < "5.2"}  before_action :authenticate_user!
   end
   RUBY
+  if pundit_validate == true
+    inject_into_file 'app/controllers/application_controller.rb', after: 'before_action :authenticate_user!' do
+      <<~RUBY
+
+        include Pundit
+
+      RUBY
+    end
+  end
 
   # # migrate + devise views
   # ########################################
@@ -199,24 +295,24 @@ after_bundle do
 
   # # Pages Controller
   # ########################################
-  run 'rm app/controllers/pages_controller.rb'
-  file 'app/controllers/pages_controller.rb', <<~RUBY
-  class PagesController < ApplicationController
+    run 'rm app/controllers/pages_controller.rb'
+    file 'app/controllers/pages_controller.rb', <<~RUBY
+    class PagesController < ApplicationController
     skip_before_action :authenticate_user!, only: [ :home ]
 
     def home
     end
   end
   RUBY
-  if activeadmin_validate == true
-    gsub_file 'db/seeds.rb', "User.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?", ' '
-    gsub_file 'config/initializers/active_admin.rb',
+    if activeadmin_validate == true
+      gsub_file 'db/seeds.rb', "User.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?", ' '
+      gsub_file 'config/initializers/active_admin.rb',
               '# config.site_title_link = "/"',
               'config.site_title_link = "/"'
-  end
+    end
     rails_command 'db:seed'
 
-end
+  end
   # Environments
   ########################################
   environment 'config.action_mailer.default_url_options = { host: "http://localhost:3000" }', env: 'development'
@@ -314,6 +410,16 @@ JS
   git add: '.'
   git commit: "-m 'Initial commit with modulable template from www.mathieu-leblond.xyz/templates'"
   run 'hub create && git -u push origin master' if repo_validate == true
-  pp "You just create a new Rails app, #{app_name}, with #{'devise' if devise_validate == true} #{'activeadmin' if activeadmin_validate == true} #{'trestle' if trestle_validate == true} #{'tailwind' if tailwind_validate == true} #{'bootstrap' if bootstrap_validate == true} #{'GitHub repo' if repo_validate == true}"
+  run 'git push origin master' if push_validate == true
+  pp "You just create a new Rails app, #{app_name}, with"
+  pp 'a naked version' if variables.empty? == true
+  pp ' -> Devise' if devise_validate == true
+  pp ' -> Pundit' if pundit_validate == true
+  pp ' -> activeadmin' if activeadmin_validate == true
+  pp ' -> trestle' if trestle_validate == true
+  pp ' -> tailwind' if tailwind_validate == true
+  pp ' -> bootstrap' if bootstrap_validate == true
+  pp ' -> faker' if faker_validate == true
+  pp ' -> Github repo' if repo_validate == true
+  pp ' -> Git push origin master done' if push_validate == true
 end
-
