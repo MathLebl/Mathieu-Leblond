@@ -338,6 +338,9 @@ after_bundle do
       // initSelect2();
     });
     JS
+  append_file 'app/views/pages/home.html.erb', <<~CODE
+    <p class="bg-primary text-white font-weight-bold">Example Bootstrap bg-primary text-white font-weight-bold </p>
+  CODE
 
     inject_into_file 'config/webpack/environment.js', before: 'module.exports' do
       <<~JS
@@ -390,6 +393,11 @@ after_bundle do
       ]
     }
 JS
+
+    append_file 'app/views/pages/home.html.erb', <<~CODE
+      <p class="bg-blue-900 text-white font-bold">Example Tailwind bg-blue-900 text-white font-bold </p>
+    CODE
+
     inject_into_file 'tailwind.config.js', before: 'purge: [],' do
       <<~RUBY
       future: {
