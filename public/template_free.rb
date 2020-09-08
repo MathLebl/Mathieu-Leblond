@@ -219,6 +219,60 @@ else
   end
 end
 
+if devise_validate == true && bootstrap_validate == true
+  # Flashes
+  ########################################
+  file 'app/views/shared/_flashes.html.erb', <<~HTML
+    <% if notice %>
+      <div class="alert alert-info alert-dismissible fade show m-1" role="alert">
+        <%= notice %>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <% end %>
+    <% if alert %>
+      <div class="alert alert-warning alert-dismissible fade show m-1" role="alert">
+        <%= alert %>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <% end %>
+  HTML
+end
+
+if devise_validate == true && tailwind_validate == true
+  # Flashes
+  ########################################
+  file 'app/views/shared/_flashes.html.erb', <<~HTML
+    <% if notice %>
+    <div class="inline-block border-t-4 border-red-500-500 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded fixed bottom-0 right-0 m-1 z-50" role="alert">
+      <%= notice %>
+      <span class=" px-4 py-3">
+        <a class="inline-block fill-current h-6 w-6 text-red-500" href=""><i class="fas fa-times"></i></a>
+      </span>
+    </div>
+    <% end %>
+    <% if alert %>
+    <div class="inline-block border-t-4 border-red-500-500 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded fixed bottom-0 right-0 m-1 z-50" role="alert">
+      <%= alert %>
+      <span class=" px-4 py-3">
+        <a class="inline-block fill-current h-6 w-6 text-red-500" href=""><i class="fas fa-times"></i></a>
+      </span>
+    </div>
+    <% end %>
+  HTML
+end
+if devise_validate == true
+  inject_into_file 'app/views/layouts/application.html.erb', after: '<body>' do
+    <<-HTML
+
+      <%= render 'shared/flashes' %>
+    HTML
+  end
+end
+
 # Dev environment
 ########################################
 gsub_file('config/environments/development.rb', /config\.assets\.debug.*/, 'config.assets.debug = false')
