@@ -1,0 +1,16 @@
+<section class="resume-section" id="education">
+  <div class="resume-section-content">
+    <h2 class="mb-5">Education</h2>
+    <% @educations.each do |education| %>
+      <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
+        <div class="flex-grow-1">
+          <h3 class="mb-0"><%= education.institution %></h3>
+          <div class="subheading mb-3"><%= education.title %></div>
+          <div></div>
+          <p class="text-justify"><%= education.description %></p>
+        </div>
+        <div class="flex-shrink-0"><span class="text-primary"><%= education.start %> - <%= education.end %></span></div>
+      </div>
+    <% end %>
+  </div>
+</section>
