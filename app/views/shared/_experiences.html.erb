@@ -6,16 +6,20 @@
         <div class="flex-grow-1">
           <h3 class="mb-0"><%= experience.role %></h3>
           <div class="subheading mb-3"><%= experience.entreprise %></div>
-          <p class="text-justify"><%= experience.xp_description.text %><br>
-            <%= experience.xp_items.item %><br>
-            <br>
-            Création du site de <strong>Contrepied Productions</strong>, maison de production<br>
-            -> Création, Développeur Full Stack, Project Management avec le concours de <strong>La Locomotive</strong><br><br>
-            Projet de création de <strong>La Locomotive</strong>,  un collectif de Freelancer issus de la formation du Wagon Lyon<br>
-            -> Project Manager et Développeur Full Stack</p>
+          <% experience.xp_descriptions.each do |description| %>
+            <p class="text-justify"><%= description.text %></p>
+            <% description.xp_items.each do |item| %>
+            <p class="text-justify"><%= item.arrow %></p>
+
+          <% end %>
+
+          <% end %>
           </div>
         <div class="flex-shrink-0"><span class="text-primary"><%= experience.start %> - <%= experience.end %></span></div>
       </div>
    <% end %>
   </div>
 </section>
+
+
+
