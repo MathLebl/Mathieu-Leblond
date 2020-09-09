@@ -1,0 +1,27 @@
+<section class="resume-section" id="awards">
+  <div class="resume-section-content">
+    <h2 class="mb-5">Réalisations</h2>
+    <ul class="fa-ul mb-0">
+      <h3 class="subheading mb-3">web</h3>
+      <% @realisations.each do |real| %>
+        <% if real.category == "web" %>
+          <li>
+            <span class="fa-li"><i class="fas fa-star text-warning"></i></span>
+            <a href="<%= real.link %>" class="font-weight-bolder" target="_blank"><%= real.title %></a>
+            <p class="text-justify"><%= real.description %></p>
+          </li>
+        <% end %>
+      <% end %>
+      <h3 class="subheading mb-3">Autre</h3>
+      <% @realisations.each do |real| %>
+        <% if real.category == "autre" %>
+          <li>
+            <span class="fa-li"><i class="fas fa-star text-warning"></i></span>
+            <a href="<%= real.link %>" class="font-weight-bolder" target="_blank"><%= real.title %></a>
+            <p class="text-justify"><%= real.description %></p>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
+  </div>
+</section>

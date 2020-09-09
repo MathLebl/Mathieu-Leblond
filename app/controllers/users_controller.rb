@@ -10,7 +10,8 @@ class UsersController < ApplicationController
     @educations = Education.where(user_id: @user.id)
     @skills = Skill.where(user_id: @user.id)
     @realisations = Realisation.where(user_id: @user.id)
-
+    # @real1 = @realisations.where(category: "web")
+    # @real2 = @realisations.where(category: "autre")
   end
 end
 
