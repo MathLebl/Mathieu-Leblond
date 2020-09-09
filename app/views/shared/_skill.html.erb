@@ -1,0 +1,27 @@
+<section class="resume-section" id="skills">
+  <div class="resume-section-content">
+    <h2 class="mb-5">Skills</h2>
+    <div class="subheading mb-3">Languages de programation et outils</div>
+    <% @skills.each do |skill| %>
+      <% if skill.category == "languages" %>
+        <ul class="list dev-icons fa-ul">
+          <li>
+            <span class="fa-li"><i class="fas fa-check"></i></span>
+            <%= skill.title %>
+          </li>
+        </ul>
+      <% end %>
+    <% end %>
+    <div class="subheading mb-3">Workflow</div>
+    <% @skills.each do |skill| %>
+      <% if skill.category == "workflow" %>
+        <ul class="list dev-icons fa-ul">
+          <li>
+            <span class="fa-li"><i class="fas fa-check"></i></span>
+            <%= skill.title %>
+          </li>
+        </ul>
+      <% end %>
+    <% end %>
+  </div>
+</section>
