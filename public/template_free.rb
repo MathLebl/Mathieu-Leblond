@@ -102,7 +102,7 @@ end
 
 inject_into_file 'Gemfile', before: 'group :development, :test do' do
   <<~RUBY
-  gem 'autoprefixer-rails'
+
   gem 'font-awesome-sass'
 
   RUBY
