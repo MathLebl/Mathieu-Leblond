@@ -1,4 +1,12 @@
 Rails.application.routes.draw do
+  get 'episodes/new'
+  get 'episodes/create'
+  get 'episodes/index'
+  resources :episodes, only: [:index] do
+    collection do
+      get 'scrape_samec', to: 'episodes#scrape_samec'
+    end
+  end
   resources :users, only: [] do
     collection do
       get 'profile/:id', to: 'users#show'

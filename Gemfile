@@ -17,6 +17,7 @@ gem 'autoprefixer-rails'
 gem 'font-awesome-sass'
 gem 'simple_form'
 gem 'activeadmin'
+gem 'mechanize'
 
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'

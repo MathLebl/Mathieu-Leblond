@@ -19,7 +19,7 @@ require("jquery-ui")
 // const images = require.context('../images', true)
 // const imagePath = (name) => images(name, true)
 
-
+import { loadSong } from '../plugins/audio';
 // ----------------------------------------------------
 // Note(lewagon): ABOVE IS RAILS DEFAULT CONFIGURATION
 // WRITE YOUR OWN JS STARTING FROM HERE 👇
@@ -32,6 +32,7 @@ import "bootstrap";
 // import { initSelect2 } from '../components/init_select2';
 
 document.addEventListener('turbolinks:load', () => {
+  loadSong();
   // Call your functions here, e.g:
   // initSelect2();
 });
