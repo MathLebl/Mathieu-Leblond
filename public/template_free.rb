@@ -10,14 +10,18 @@ bootstrap_validate = false
 faker_validate = false
 repo_validate = false
 push_validate = false
+tailwind_forms_validate = false
 
 # Setings Questions
 ###########################################
-pp "Select your set up"
+pp "Select your set up, answer yes/y if you want those options or no/n if not"
 pp 'Front Options'
 if yes?('Do you want to use Tailwind ?')
   tailwind_validate = true
   variables << tailwind_validate
+  if yes?('Forms utilities ?')
+    tailwind_forms_validate = true
+  end
 elsif yes?('Do you want to use Bootstrap ?')
   bootstrap_validate = true
   variables << tailwind_validate
@@ -53,15 +57,17 @@ end
 pp "Github repo and Heroku's options"
 repo_validate = true if yes?("Create Github repo?")
 if repo_validate == true
-  variables << trestle_validate
+  variables << repo_validate
   if yes?("Do you want to push to GitHub?")
     push_validate = true
     variables << push_validate
   end
+  if yes?('open repo on Github ?')
   # if yes?('Create Heroku App')
-  #   heroku_app_validate = true
-  #   variables << heroku_app_validate
-  # end
+    open_validate = true
+    # variables << heroku_app_validate
+
+  end
 end
 
 # GEMFILE
@@ -145,6 +151,7 @@ run 'rm -rf app/assets/stylesheets'
 run 'rm -rf vendor'
 run 'curl -L http://www.mathieu-leblond.xyz/template_folder > stylesheets.zip'
 run 'unzip stylesheets.zip -d app/assets && rm stylesheets.zip && mv app/assets/rails-stylesheets-perso app/assets/stylesheets'
+run 'rm -r app/assets/__MACOSX'
 if bootstrap_validate == true
   run 'touch app/assets/stylesheets/config/_bootstrap_variables.scss'
   prepend_file 'app/assets/stylesheets/application.scss', <<~RUBY
@@ -374,12 +381,10 @@ after_bundle do
 
   # Webpacker / Yarn
   ########################################
-  run 'yarn add popper.js jquery bootstrap' if bootstrap_validate == true
-  run 'yarn add tailwindcss list' if tailwind_validate == true
-  run 'yarn tailwindcss init' if tailwind_validate == true
 
 
   if bootstrap_validate == true
+  run 'yarn add popper.js jquery bootstrap'
   append_file 'app/javascript/packs/application.js', <<~JS
 
     // External imports
@@ -414,51 +419,77 @@ after_bundle do
   end
 
   if tailwind_validate == true
+    run 'yarn add tailwindcss@npm:@tailwindcss/postcss7-compat @tailwindcss/postcss7-compat postcss@\^7 autoprefixer@\^9'
+    run 'yarn remove tailwindcss @tailwindcss/postcss7-compat'
+    run 'yarn add tailwindcss@latest postcss@latest autoprefixer@latest'
+
     run 'mkdir app/javascript/stylesheets'
+    run 'npx tailwindcss init'
+    run 'mv tailwind.config.js app/javascript/stylesheets'
     run 'touch app/javascript/stylesheets/application.scss'
+
     append_file 'app/javascript/stylesheets/application.scss', <<~SCSS
 
     // import tailwindcss
     @import "tailwindcss/base";
     @import "tailwindcss/components";
+
+    /* Add any custom CSS here */
     @import "tailwindcss/utilities";
 
     SCSS
 
     append_file 'app/javascript/packs/application.js', <<~JS
 
-    require("stylesheets/application.scss")
+    import "stylesheets/application"
     JS
 
     run 'rm postcss.config.js'
     file 'postcss.config.js', <<~JS
     module.exports = {
-      plugins: [
-        require('tailwindcss'),
-        require('autoprefixer'),
-        require('postcss-import'),
-        require('postcss-flexbugs-fixes'),
-        require('postcss-preset-env')({
-          autoprefixer: {
-            flexbox: 'no-2009'
-          },
-          stage: 3
-        })
-      ]
-    }
+  plugins: [
+    require("tailwindcss")("./app/javascript/stylesheets/tailwind.config.js"),
+    require("postcss-import"),
+    require("postcss-flexbugs-fixes"),
+    require("postcss-preset-env")({
+      autoprefixer: {
+        flexbox: "no-2009",
+      },
+      stage: 3,
+    }),
+  ],
+}
 JS
 
     append_file 'app/views/pages/home.html.erb', <<~CODE
       <p class="bg-blue-900 text-white font-bold">Example Tailwind bg-blue-900 text-white font-bold </p>
     CODE
 
-    inject_into_file 'tailwind.config.js', before: 'purge: [],' do
+    inject_into_file 'app/javascript/stylesheets/tailwind.config.js', after: 'purge: [' do
       <<~RUBY
-      future: {
-        removeDeprecatedGapUtilities: true,
-      },
+
+    "./app/**/*.html.erb",
+    "./app/helpers/**/*.rb",
+    "./app/javascript/**/*.js",
+    "./app/javascript/**/*.vue",
+
       RUBY
     end
+    inject_into_file 'app/views/layouts/application.html.erb', after: "<%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>" do
+    <<-HTML
+
+      <%= stylesheet_pack_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    HTML
+  end
+  if tailwind_forms_validate = true
+    run "yarn add @tailwindcss/forms"
+
+    inject_into_file 'app/javascript/stylesheets/tailwind.config.js', after: 'plugins: [' do
+      <<~RUBY
+      require('@tailwindcss/forms')
+      RUBY
+    end
+  end
   end
 
   # Dotenv
@@ -471,17 +502,18 @@ JS
   ########################################
   git add: '.'
   git commit: "-m 'Initial commit with modulable template from www.mathieu-leblond.xyz/templates'"
-  run 'hub create && git -u push origin master' if repo_validate == true
+  run 'hub create && git push origin master' if repo_validate == true
   run 'git push origin master' if push_validate == true
+  run 'hub browse' if open_validate == true
   pp "You just create a new Rails app, #{app_name}, with"
   pp 'a naked version' if variables.empty? == true
-  pp ' -> Devise' if devise_validate == true
-  pp ' -> Pundit' if pundit_validate == true
-  pp ' -> activeadmin' if activeadmin_validate == true
-  pp ' -> trestle' if trestle_validate == true
-  pp ' -> tailwind' if tailwind_validate == true
-  pp ' -> bootstrap' if bootstrap_validate == true
-  pp ' -> faker' if faker_validate == true
-  pp ' -> Github repo' if repo_validate == true
-  pp ' -> Git push origin master done' if push_validate == true
+  pp ' => Devise' if devise_validate == true
+  pp ' => Pundit' if pundit_validate == true
+  pp ' => activeadmin' if activeadmin_validate == true
+  pp ' => trestle' if trestle_validate == true
+  pp ' => tailwind' if tailwind_validate == true
+  pp ' => bootstrap' if bootstrap_validate == true
+  pp ' => faker' if faker_validate == true
+  pp ' => Github repo' if repo_validate == true
+  pp ' => Git push origin master done' if push_validate == true
 end
